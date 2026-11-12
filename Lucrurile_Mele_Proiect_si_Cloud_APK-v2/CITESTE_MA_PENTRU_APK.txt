@@ -1,0 +1,13 @@
+CUM OBTII FISIERUL .APK FARA SA INSTALEZI ANDROID STUDIO SAU VS CODE PE PC:
+
+VARIANTA 1 (COMPILARE AUTOMATA IN CLOUD PRIN GITHUB - 0 INSTALARI PE PC):
+1. Intra pe contul tau de GitHub (github.com) si creeaza un repository nou (ex: lucrurile-mele).
+2. Dezarhiveaza acest ZIP si incarca fisierele pe GitHub (Upload files -> Commit changes).
+3. Mergi in tab-ul "Actions" de pe GitHub -> apasa pe workflow-ul "Build Android APK".
+4. In 2-3 minute, serverul GitHub iti compileaza singur aplicatia si iti apare jos sectiunea "Artifacts: Lucrurile-Mele-APK".
+5. Descarci direct fisierul app-release.apk pe telefon si il instalezi!
+
+VARIANTA 2 (DACA AI FLUTTER PE PC - 1 CLICK):
+1. Dezarhiveaza acest folder pe PC.
+2. Da click dreapta pe fisierul GENEREAZA_APK_AUTOMAT.ps1 -> "Run with PowerShell".
+3. Iti pune direct pe Desktop fisierul Lucrurile_Mele.apk!

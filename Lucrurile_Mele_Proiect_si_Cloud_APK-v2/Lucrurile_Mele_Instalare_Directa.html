@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#009688">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lucrurile mele">
+<title>Lucrurile mele</title>
+<style>
+  :root {
+    --teal: #009688;
+    --bg: #EAEAEA;
+    --card: #FFFFFF;
+    --text: #212121;
+    --subtext: #666666;
+    --border: #E0E0E0;
+    --red-bar: #E57373;
+  }
+  body.dark {
+    --bg: #121212;
+    --card: #1E1E1E;
+    --text: #F5F5F5;
+    --subtext: #AAAAAA;
+    --border: #333333;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 72px;
+    user-select: none;
+  }
+  /* Top Navigation Bar */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--teal);
+    height: 54px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.65);
+    font-size: 24px;
+    padding: 10px 24px;
+    cursor: pointer;
+  }
+  .nav-btn.active {
+    color: #FFFFFF;
+    border-bottom: 3px solid #FFFFFF;
+  }
+  .container { padding: 10px 8px; max-width: 600px; margin: 0 auto; }
+
+  /* Week Navigation */
+  .week-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px 10px;
+  }
+  .week-bar button {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--teal);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Day Card */
+  .day-card {
+    background: var(--card);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+  .day-header {
+    display: flex;
+    align-items: center;
+    height: 90px;
+    cursor: pointer;
+  }
+  .day-left {
+    width: 70px;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(180,180,180,0.18), rgba(140,140,140,0.32));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .day-left .dow { font-size: 13px; font-weight: 500; }
+  .day-left .dom { font-size: 28px; line-height: 32px; }
+  .day-left .mon { font-size: 12px; color: var(--subtext); }
+  .day-left.today .dow, .day-left.today .dom, .day-left.today .mon { color: var(--teal); font-weight: 600; }
+  .day-left.weekend .dow { color: #9E2A2B; }
+
+  .day-mid {
+    flex: 1;
+    padding: 0 16px;
+  }
+  .day-title { font-size: 17px; margin-bottom: 12px; }
+  .progress-row { display: flex; align-items: center; gap: 12px; }
+  .fraction { font-size: 13px; color: var(--subtext); min-width: 28px; }
+  .progress-track {
+    flex: 1;
+    height: 5px;
+    background: var(--red-bar);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--teal);
+    transition: width 0.25s;
+  }
+  .add-circle {
+    width: 40px;
+    height: 40px;
+    margin-right: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: linear-gradient(145deg, #ffffff, #e2e2e2);
+    color: #555;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+    cursor: pointer;
+  }
+
+  /* Task List inside Day */
+  .task-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    border-top: 1px solid var(--border);
+    gap: 10px;
+  }
+  .task-row.selected {
+    background: rgba(0, 150, 136, 0.16);
+  }
+  .checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--teal);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: #fff;
+    font-size: 15px;
+  }
+  .checkbox.checked { background: var(--teal); }
+  .task-info { flex: 1; cursor: pointer; }
+  .task-name { font-size: 16px; }
+  .task-name.done { text-decoration: line-through; color: var(--subtext); }
+  .task-time { font-size: 12px; color: var(--subtext); margin-top: 3px; }
+  .roll-btn {
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--teal);
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* Bottom Action Toolbar */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    background: var(--teal);
+    display: none;
+    justify-content: space-around;
+    align-items: center;
+    color: #fff;
+    z-index: 200;
+  }
+  .bottom-bar.visible { display: flex; }
+  .bottom-action {
+    background: none;
+    border: none;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 11px;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  /* Calendar Grid */
+  .cal-card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .cal-cell {
+    padding: 8px 2px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    font-size: 15px;
+  }
+  .cal-cell.today {
+    background: rgba(0, 150, 136, 0.15);
+    color: var(--teal);
+    font-weight: bold;
+  }
+  .cal-sup {
+    font-size: 10px;
+    font-weight: bold;
+    vertical-align: super;
+    margin-left: 1px;
+  }
+
+  /* Settings Cards */
+  .set-card {
+    background: var(--card);
+    padding: 18px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 17px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    cursor: pointer;
+  }
+
+  /* Modal Editor */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    padding: 16px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--card);
+    width: 100%;
+    max-width: 420px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+  }
+  .modal-head {
+    background: var(--teal);
+    color: #fff;
+    padding: 14px 16px;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .modal-body input[type="text"], .modal-body input[type="date"], .modal-body input[type="time"], .modal-body select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--text);
+  }
+  .opt-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <button class="nav-btn active" id="tabBtn0" onclick="switchTab(0)">☰</button>
+  <button class="nav-btn" id="tabBtn1" onclick="switchTab(1)">📅</button>
+  <button class="nav-btn" id="tabBtn2" onclick="switchTab(2)">⚙️</button>
+</div>
+
+<!-- TAB 0: PLANIFICARE SAPTAMANALA -->
+<div class="container" id="tab0">
+  <div class="week-bar">
+    <button onclick="shiftWeek(-7)">◀</button>
+    <button onclick="resetToday()" id="weekLabel">Săptămâna curentă</button>
+    <button onclick="shiftWeek(7)">▶</button>
+  </div>
+  <div id="weekList"></div>
+</div>
+
+<!-- TAB 1: CALENDAR LUNAR -->
+<div class="container" id="tab1" style="display:none;">
+  <div class="cal-card" style="display:flex;justify-content:space-between;align-items:center;">
+    <button onclick="shiftMonth(-1)" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--subtext);">◀</button>
+    <div id="calMonthTitle" style="color:var(--teal);font-size:18px;font-weight:500;">noiembrie 2026</div>
+    <button onclick="shiftMonth(1)" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--subtext);">▶</button>
+  </div>
+  <div class="cal-card">
+    <div class="cal-grid" style="font-size:13px;color:var(--subtext);border-bottom:1px solid var(--border);padding-bottom:6px;">
+      <div>lun</div><div>mar</div><div>mie</div><div>joi</div><div>vin</div><div>sâm</div><div>dum</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+  <div id="calDayList"></div>
+</div>
+
+<!-- TAB 2: SETARI (CELE 4 INCERCUITE) -->
+<div class="container" id="tab2" style="display:none;">
+  <div class="set-card" onclick="openSearchView()">🔍 Căutare</div>
+  <div class="set-card" onclick="toggleAutoRollover()">🔄 Setări generale: Transfer automat restanțe (<span id="rollStatus">Activ</span>)</div>
+  <div class="set-card" onclick="toggleDarkMode()">🎨 Setări de proiectare: Mod Întunecat / Temă</div>
+  <div class="set-card" onclick="requestNotifPermission()">🔔 Setări de notificare: Activează alertele pe telefon</div>
+
+  <div id="searchBox" style="display:none;margin-top:12px;">
+    <div class="cal-card">
+      <input type="text" id="searchInput" placeholder="Căutare sarcini..." oninput="renderSearch()" style="width:100%;padding:10px;font-size:16px;border:1px solid var(--border);border-radius:6px;">
+    </div>
+    <div id="searchResults"></div>
+  </div>
+</div>
+
+<!-- BARA DE JOS PENTRU SARCINA SELECTATA -->
+<div class="bottom-bar" id="bottomBar">
+  <button class="bottom-action" onclick="editSelected()"><span>✏️</span><span>Edita</span></button>
+  <button class="bottom-action" onclick="moveSelectedTomorrow()"><span>📅</span><span>Mișcare +1 zi</span></button>
+  <button class="bottom-action" onclick="copySelected()"><span>📄</span><span>Copie</span></button>
+  <button class="bottom-action" onclick="shareSelected()"><span>📤</span><span>Trimite</span></button>
+  <button class="bottom-action" onclick="deleteSelected()"><span>🗑️</span><span>Șterge</span></button>
+</div>
+
+<!-- MODAL ADAUGARE / EDITARE SARCINA -->
+<div class="modal-backdrop" id="taskModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span id="modalTitle">Sarcină</span>
+      <button onclick="saveTaskModal()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;">✔</button>
+    </div>
+    <div class="modal-body">
+      <input type="text" id="inpTitle" placeholder="Scrie lucrul (ex: Obicei)...">
+      <div class="opt-row">
+        <span>Data:</span>
+        <input type="date" id="inpDate" style="width:auto;">
+      </div>
+      <div class="opt-row">
+        <span>Indicați ora (Începe):</span>
+        <input type="time" id="inpStart" style="width:auto;">
+      </div>
+      <div class="opt-row">
+        <span>Sfârșitul ★:</span>
+        <input type="time" id="inpEnd" style="width:auto;">
+      </div>
+      <div class="opt-row">
+        <span>Repetarea lucrului:</span>
+        <select id="inpRecurrence" style="width:auto;">
+          <option value="none">Nu se repetă</option>
+          <option value="daily">În fiecare zi</option>
+        </select>
+      </div>
+      <div class="opt-row">
+        <span>Transfer automat pe ziua următoare ★:</span>
+        <input type="checkbox" id="inpAutoTransfer" checked style="width:20px;height:20px;">
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
+        <button onclick="closeTaskModal()" style="padding:8px 14px;border:none;background:#ccc;border-radius:6px;">ANULEAZĂ</button>
+        <button onclick="saveTaskModal()" style="padding:8px 18px;border:none;background:var(--teal);color:#fff;border-radius:6px;">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DAYS_SHORT = ['dum', 'lun', 'mar', 'mie', 'joi', 'vin', 'sâm'];
+const MONTHS_SHORT = ['ian.', 'feb.', 'mar.', 'apr.', 'mai', 'iun.', 'iul.', 'aug.', 'sep.', 'oct.', 'nov.', 'dec.'];
+const MONTHS_LONG = ['ianuarie', 'februarie', 'martie', 'aprilie', 'mai', 'iunie', 'iulie', 'august', 'septembrie', 'octombrie', 'noiembrie', 'decembrie'];
+
+let state = {
+  tasks: [],
+  darkMode: false,
+  autoRollover: true,
+  weekOffsetDays: 0,
+  expandedDateStr: toDateStr(new Date()),
+  selectedTaskId: null,
+  editingTaskId: null,
+  calYear: new Date().getFullYear(),
+  calMonth: new Date().getMonth()
+};
+
+function toDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function loadState() {
+  const saved = localStorage.getItem('lucrurile_mele_v1');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    state.tasks = parsed.tasks || [];
+    state.darkMode = !!parsed.darkMode;
+    state.autoRollover = parsed.autoRollover !== undefined ? parsed.autoRollover : true;
+  } else {
+    const today = toDateStr(new Date());
+    state.tasks = [
+      { id: '1', title: 'Obicei', date: today, startTime: '17:47', endTime: '', recurrence: 'daily', autoTransfer: true, completed: false },
+      { id: '2', title: 'Nuci', date: today, startTime: '', endTime: '', recurrence: 'daily', autoTransfer: true, completed: false },
+      { id: '3', title: 'Fac comandă sticuri și căști Gavrilova viaimpex', date: today, startTime: '', endTime: '', recurrence: 'none', autoTransfer: true, completed: false },
+      { id: '4', title: 'Rezolv ci contabilitatea la ZAICANI', date: today, startTime: '', endTime: '', recurrence: 'none', autoTransfer: true, completed: false },
+      { id: '5', title: 'Fac contract ZAICANI', date: today, startTime: '', endTime: '', recurrence: 'none', autoTransfer: true, completed: false },
+      { id: '6', title: 'Telefon frate orb repar', date: today, startTime: '', endTime: '', recurrence: 'none', autoTransfer: true, completed: false },
+      { id: '7', title: 'Cu lucrarea la Chilat văd', date: today, startTime: '', endTime: '', recurrence: 'none', autoTransfer: true, completed: false }
+    ];
+  }
+  applyRolloverAndDaily();
+  document.body.classList.toggle('dark', state.darkMode);
+  renderAll();
+}
+
+function saveState() {
+  localStorage.setItem('lucrurile_mele_v1', JSON.stringify({
+    tasks: state.tasks,
+    darkMode: state.darkMode,
+    autoRollover: state.autoRollover
+  }));
+}
+
+function applyRolloverAndDaily() {
+  const todayStr = toDateStr(new Date());
+  state.tasks.forEach(t => {
+    if (!t.completed && t.date < todayStr && t.autoTransfer && state.autoRollover && t.recurrence === 'none') {
+      t.date = todayStr;
+    }
+  });
+  const dailies = state.tasks.filter(t => t.recurrence === 'daily');
+  dailies.forEach(d => {
+    const exists = state.tasks.some(x => x.title === d.title && x.date === todayStr);
+    if (!exists) {
+      state.tasks.push({
+        id: 'd_' + Date.now() + Math.random(),
+        title: d.title,
+        date: todayStr,
+        startTime: d.startTime,
+        endTime: d.endTime,
+        recurrence: 'daily',
+        autoTransfer: true,
+        completed: false
+      });
+    }
+  });
+  saveState();
+}
+
+function switchTab(idx) {
+  [0,1,2].forEach(i => {
+    document.getElementById('tab' + i).style.display = (i === idx) ? 'block' : 'none';
+    document.getElementById('tabBtn' + i).classList.toggle('active', i === idx);
+  });
+  state.selectedTaskId = null;
+  renderAll();
+}
+
+function getMonday(d) {
+  const dt = new Date(d);
+  const day = dt.getDay();
+  const diff = dt.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(dt.setDate(diff));
+}
+
+function shiftWeek(days) {
+  state.weekOffsetDays += days;
+  renderAll();
+}
+
+function resetToday() {
+  state.weekOffsetDays = 0;
+  state.expandedDateStr = toDateStr(new Date());
+  renderAll();
+}
+
+function renderAll() {
+  renderWeek();
+  renderCalendar();
+  document.getElementById('bottomBar').classList.toggle('visible', !!state.selectedTaskId);
+  document.getElementById('rollStatus').textContent = state.autoRollover ? 'Activ' : 'Oprit';
+}
+
+function renderWeek() {
+  const base = new Date();
+  base.setDate(base.getDate() + state.weekOffsetDays);
+  const monday = getMonday(base);
+  const todayStr = toDateStr(new Date());
+  const container = document.getElementById('weekList');
+  container.innerHTML = '';
+
+  for (let i = 0; i < 7; i++) {
+    const dayDate = new Date(monday);
+    dayDate.setDate(monday.getDate() + i);
+    const dStr = toDateStr(dayDate);
+    const dayTasks = state.tasks.filter(t => t.date === dStr);
+    const total = dayTasks.length;
+    const done = dayTasks.filter(t => t.completed).length;
+    const left = total - done;
+    const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+    const isToday = dStr === todayStr;
+    const isWeekend = dayDate.getDay() === 0 || dayDate.getDay() === 6;
+    const label = total === 0 ? '0 Lucruri' : (isToday && left > 0 ? `${left}e lucruri restante` : `${total} Lucruri`);
+
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    let html = `
+      <div class="day-header" onclick="toggleExpandDay('${dStr}')">
+        <div class="day-left ${isToday ? 'today' : ''} ${isWeekend ? 'weekend' : ''}">
+          <div class="dow">${DAYS_SHORT[dayDate.getDay()]}</div>
+          <div class="dom">${dayDate.getDate()}</div>
+          <div class="mon">${MONTHS_SHORT[dayDate.getMonth()]}</div>
+        </div>
+        <div class="day-mid">
+          <div class="day-title">${label}</div>
+          <div class="progress-row">
+            <span class="fraction">${done}/${total}</span>
+            <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+          </div>
+        </div>
+        <div class="add-circle" onclick="event.stopPropagation(); openAddModal('${dStr}')">+</div>
+      </div>
+    `;
+
+    if (state.expandedDateStr === dStr && dayTasks.length > 0) {
+      dayTasks.forEach(t => {
+        const isSel = state.selectedTaskId === t.id;
+        const timeTxt = t.startTime ? (t.endTime ? `${t.startTime} - ${t.endTime}` : t.startTime) : '';
+        html += `
+          <div class="task-row ${isSel ? 'selected' : ''}" onclick="selectTask('${t.id}')">
+            <div class="checkbox ${t.completed ? 'checked' : ''}" onclick="event.stopPropagation(); toggleCheck('${t.id}')">
+              ${t.completed ? '✔' : ''}
+            </div>
+            <div class="task-info">
+              <div class="task-name ${t.completed ? 'done' : ''}">${t.title}</div>
+              ${timeTxt ? `<div class="task-time">${timeTxt}</div>` : ''}
+            </div>
+            <button class="roll-btn" title="Mută pe mâine" onclick="event.stopPropagation(); moveTaskPlusOne('${t.id}')">↪</button>
+          </div>
+        `;
+      });
+    }
+    card.innerHTML = html;
+    container.appendChild(card);
+  }
+}
+
+function toggleExpandDay(dStr) {
+  state.expandedDateStr = (state.expandedDateStr === dStr) ? null : dStr;
+  state.selectedTaskId = null;
+  renderAll();
+}
+
+function toggleCheck(id) {
+  const t = state.tasks.find(x => x.id === id);
+  if (t) {
+    t.completed = !t.completed;
+    saveState();
+    renderAll();
+  }
+}
+
+function selectTask(id) {
+  state.selectedTaskId = (state.selectedTaskId === id) ? null : id;
+  renderAll();
+}
+
+function moveTaskPlusOne(id) {
+  const t = state.tasks.find(x => x.id === id);
+  if (t) {
+    const dt = new Date(t.date + 'T12:00:00');
+    dt.setDate(dt.getDate() + 1);
+    t.date = toDateStr(dt);
+    saveState();
+    renderAll();
+  }
+}
+
+function openAddModal(dateStr) {
+  state.editingTaskId = null;
+  document.getElementById('modalTitle').textContent = 'Adaugă lucru (' + dateStr + ')';
+  document.getElementById('inpTitle').value = '';
+  document.getElementById('inpDate').value = dateStr;
+  document.getElementById('inpStart').value = '17:47';
+  document.getElementById('inpEnd').value = '';
+  document.getElementById('inpRecurrence').value = 'none';
+  document.getElementById('inpAutoTransfer').checked = true;
+  document.getElementById('taskModal').classList.add('open');
+}
+
+function editSelected() {
+  const t = state.tasks.find(x => x.id === state.selectedTaskId);
+  if (!t) return;
+  state.editingTaskId = t.id;
+  document.getElementById('modalTitle').textContent = 'Editează lucrul';
+  document.getElementById('inpTitle').value = t.title;
+  document.getElementById('inpDate').value = t.date;
+  document.getElementById('inpStart').value = t.startTime || '';
+  document.getElementById('inpEnd').value = t.endTime || '';
+  document.getElementById('inpRecurrence').value = t.recurrence || 'none';
+  document.getElementById('inpAutoTransfer').checked = !!t.autoTransfer;
+  document.getElementById('taskModal').classList.add('open');
+}
+
+function closeTaskModal() {
+  document.getElementById('taskModal').classList.remove('open');
+}
+
+function saveTaskModal() {
+  const title = document.getElementById('inpTitle').value.trim();
+  if (!title) return;
+  const date = document.getElementById('inpDate').value;
+  const startTime = document.getElementById('inpStart').value;
+  const endTime = document.getElementById('inpEnd').value;
+  const recurrence = document.getElementById('inpRecurrence').value;
+  const autoTransfer = document.getElementById('inpAutoTransfer').checked;
+
+  if (state.editingTaskId) {
+    const t = state.tasks.find(x => x.id === state.editingTaskId);
+    if (t) {
+      t.title = title;
+      t.date = date;
+      t.startTime = startTime;
+      t.endTime = endTime;
+      t.recurrence = recurrence;
+      t.autoTransfer = autoTransfer;
+    }
+  } else {
+    state.tasks.push({
+      id: 't_' + Date.now(),
+      title,
+      date,
+      startTime,
+      endTime,
+      recurrence,
+      autoTransfer,
+      completed: false
+    });
+  }
+  state.selectedTaskId = null;
+  state.expandedDateStr = date;
+  saveState();
+  closeTaskModal();
+  renderAll();
+}
+
+function moveSelectedTomorrow() {
+  if (state.selectedTaskId) moveTaskPlusOne(state.selectedTaskId);
+  state.selectedTaskId = null;
+  renderAll();
+}
+
+function copySelected() {
+  const t = state.tasks.find(x => x.id === state.selectedTaskId);
+  if (t) {
+    state.tasks.push({ ...t, id: 'c_' + Date.now() });
+    state.selectedTaskId = null;
+    saveState();
+    renderAll();
+  }
+}
+
+function shareSelected() {
+  const t = state.tasks.find(x => x.id === state.selectedTaskId);
+  if (t && navigator.share) {
+    navigator.share({ title: 'Lucrurile mele', text: t.title });
+  } else if (t) {
+    navigator.clipboard.writeText(t.title);
+    alert('Copiat: ' + t.title);
+  }
+}
+
+function deleteSelected() {
+  state.tasks = state.tasks.filter(x => x.id !== state.selectedTaskId);
+  state.selectedTaskId = null;
+  saveState();
+  renderAll();
+}
+
+function shiftMonth(delta) {
+  state.calMonth += delta;
+  if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
+  if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('calMonthTitle').textContent = `${MONTHS_LONG[state.calMonth]} ${state.calYear}`;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const firstDay = new Date(state.calYear, state.calMonth, 1).getDay();
+  const leading = (firstDay + 6) % 7;
+  const daysInMonth = new Date(state.calYear, state.calMonth + 1, 0).getDate();
+  const todayStr = toDateStr(new Date());
+
+  for (let i = 0; i < leading; i++) {
+    grid.appendChild(document.createElement('div'));
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dt = new Date(state.calYear, state.calMonth, d);
+    const dStr = toDateStr(dt);
+    const cnt = state.tasks.filter(t => t.date === dStr).length;
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell ' + (dStr === todayStr ? 'today' : '');
+    cell.innerHTML = `${d}${cnt > 0 ? `<span class="cal-sup" style="color:#D32F2F">${cnt}</span>` : ''}`;
+    cell.onclick = () => {
+      state.expandedDateStr = dStr;
+      switchTab(0);
+    };
+    grid.appendChild(cell);
+  }
+}
+
+function openSearchView() {
+  const box = document.getElementById('searchBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const res = document.getElementById('searchResults');
+  res.innerHTML = '';
+  if (!q) return;
+  state.tasks.filter(t => t.title.toLowerCase().includes(q)).forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'set-card';
+    div.textContent = `${t.completed ? '☑' : '☐'} ${t.title} (${t.date})`;
+    res.appendChild(div);
+  });
+}
+
+function toggleDarkMode() {
+  state.darkMode = !state.darkMode;
+  document.body.classList.toggle('dark', state.darkMode);
+  saveState();
+}
+
+function toggleAutoRollover() {
+  state.autoRollover = !state.autoRollover;
+  saveState();
+  renderAll();
+}
+
+function requestNotifPermission() {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(p => {
+      alert(p === 'granted' ? 'Notificările sunt activate!' : 'Permisiune refuzată.');
+    });
+  }
+}
+
+loadState();
+</script>
+</body>
+</html>
